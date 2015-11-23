@@ -1,15 +1,10 @@
 language: c
+
 compiler:
   - gcc
   - clang
 
-before_script:
-  - sudo apt-get install liblzo2-dev libpam-dev
-
-script:
-  - autoreconf -vi
-  - ./configure --enable-strict
-  - make check
+sudo: no
 
 env:
   global:
@@ -18,12 +13,22 @@ env:
    - secure: "l9mSnEW4LJqjxftH5i1NdDaYfGmQB1mPXnSB3DXnsjzkCWZ+yJLfBemfQ0tx/wS7chBYxqUaUIMT0hw4zJVp/LANFJo2vfh//ymTS6h0uApRY1ofg9Pp1BFcV1laG6/u8pwSZ2EBy/GhCd3DS436oE8sYBRaFM9FU62L/oeQBfJ7r4ID/0eB1b8bqlbD4paty9MHui2P8EZJwR+KAD84prtfpZOcrSMxPh9OUhJxzxUvvVoP4s4+lZ5Kgg1bBQ3yzKGDqe8VOgK2BWCEuezqhMMc8oeKmAe7CUkoz5gsGYH++k3I9XzP9Z4xeJKoQnC/82qi4xkJmlaOxdionej9bHIcjfRt7D8j1J0U+wOj4p8VrDy7yHaxuN2fi0K5MGa/CaXQSrkna8dePniCng+xQ2MY/zxuRX2gA6xPNLUyQLU9LqIug7wj4z84Hk9iWib4L20MoPjeEo+vAUNq8FtjOPxMuHNpv4iGGx6kgJm7RXl5vC5hxfK6MprrnYe2U5Mcd8jpzagKBaKHL3zV2FxX9k0jRO9Mccz7M2WnaV0MQ6zcngzTN4+s0kCjhfGKd2F2ANT2Gkhj3Me36eNHfuE0dBbvYCMh4b3Mgd7b/OuXwQWdJ8PjJ1WHXjSOw5sHw1suaV6cEO2Meyz5j1tOkyOi0M9QF+LFenQ9vLH4sBCww8U="
 
 addons:
+  apt:
+    packages:
+      - liblzo2-dev
+      - libpam0g-dev
   coverity_scan:
     project:
       name: "OpenVPN/openvpn"
       version: 2.3.x
       description: "Open Source VPN daemon"
     notification_email: steffan@karger.me
-    build_command_prepend: "autoreconf -vi && ./configure && make clean"
+    build_command_prepend: "autoreconf -vi && ./configure --enable-iproute2 && make clean"
     build_command: "make"
     branch_pattern: coverity_scan
+
+script:
+  - autoreconf -vi
+  # We need to use --enable-iproute2 to run on the new (faster) Travis CI infra.
+  - ./configure --enable-strict --enable-iproute2
+  - make check
